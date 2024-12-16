@@ -6,16 +6,30 @@ require("dotenv").config();
 
 const app = express();
 
-// Configure CORS to allow any origin
+// CORS Configuration
+const whitelist = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',') 
+  : ['http://localhost:3000']; // Default to localhost if no origins specified
+
 const corsOptions = {
-  origin: "*", // Allow all origins
-  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
-  allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
-  credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (whitelist.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  maxAge: 86400 
 };
 
-app.use(cors(corsOptions)); // Apply CORS middleware
-app.use(express.json()); // Enable JSON parsing
+app.use(cors(corsOptions));
+app.use(express.json());
 
 // Connect to MongoDB
 mongoose
