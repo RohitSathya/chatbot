@@ -11,7 +11,7 @@ const App = () => {
     const userMessage = { sender: "user", text: input };
     setMessages([...messages, userMessage]);
 
-    const response = await fetch("https://chatbot-two-green.vercel.app/api/chat", {
+    const response = await fetch("https://srijachatbot.vercel.app/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: input }),
