@@ -7,13 +7,28 @@ require('dotenv').config();
 
 const app = express();
 
+const corsOptions = {
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'https://chatbot-d4gm.vercel.app/',
+       'https://chatbot-d4gm.vercel.app'
+    ];
+    
+    // If origin is allowed or if no origin (non-browser requests), proceed
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true, 
+};
+
 
 app.use(
-  cors({
-    origin: "https://chatbot-d4gm.vercel.app",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
+  cors(corsOptions)
 );
 app.use(express.json());
 
