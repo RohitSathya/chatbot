@@ -2,37 +2,22 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const chatRoutes = require("./routes/chatRoutes");
-require('dotenv').config();
-
+require("dotenv").config();
 
 const app = express();
 
+// Configure CORS to allow any origin
 const corsOptions = {
-  origin: function (origin, callback) {
-    const allowedOrigins = [
-      'https://chatbot-d4gm.vercel.app/',
-       'https://chatbot-d4gm.vercel.app'
-    ];
-    
-    // If origin is allowed or if no origin (non-browser requests), proceed
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true, 
+  origin: "*", // Allow all origins
+  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
+  allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
+  credentials: true, // Allow credentials (cookies, authorization headers, etc.)
 };
 
+app.use(cors(corsOptions)); // Apply CORS middleware
+app.use(express.json()); // Enable JSON parsing
 
-app.use(
-  cors(corsOptions)
-);
-app.use(express.json());
-
-
+// Connect to MongoDB
 mongoose
   .connect(process.env.mongo_url, {
     useNewUrlParser: true,
@@ -41,10 +26,10 @@ mongoose
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-
+// Define routes
 app.use("/api", chatRoutes);
 
-
+// Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
