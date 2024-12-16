@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import ChatMessage from "./components/ChatMessage";
 
 const App = () => {
@@ -8,18 +9,26 @@ const App = () => {
   const sendMessage = async () => {
     if (!input.trim()) return;
 
+    // Add user message to the chat
     const userMessage = { sender: "user", text: input };
     setMessages([...messages, userMessage]);
 
-    const response = await fetch("https://srijachatbot.vercel.app/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: input }),
-    });
-    const data = await response.json();
+    try {
+      // Make a POST request to the chatbot API
+      const response = await axios.post("https://srijachatbot.vercel.app/api/chat", {
+        message: input,
+      });
 
-    const botMessage = { sender: "bot", text: data.response };
-    setMessages((prev) => [...prev, botMessage]);
+      // Add the bot's response to the chat
+      const botMessage = { sender: "bot", text: response.data.response };
+      setMessages((prev) => [...prev, botMessage]);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      const errorMessage = { sender: "bot", text: "Something went wrong. Please try again later." };
+      setMessages((prev) => [...prev, errorMessage]);
+    }
+
+    // Clear the input field
     setInput("");
   };
 
